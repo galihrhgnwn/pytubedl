@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.8">
+  <title>PytubeDL API — Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <style>
+    :root {
+      /* neutral dark-gray palette */
+      --bg:          #121212;
+      --bg-2:        #181818;
+      --bg-3:        #1f1f1f;
+      --bg-hover:    #242424;
+      --border:      #2c2c2c;
+      --border-2:    #3a3a3a;
+      --text:        #e8e8e8;
+      --text-muted:  #9a9a9a;
+      --text-faint:  #6b6b6b;
+      --accent:      #6ba8ff;
+      --accent-dim:  rgba(107,168,255,0.12);
+      --accent-glow: rgba(107,168,255,0.2);
+      --green:       #3ddc97;
+      --green-dim:   rgba(61,220,151,0.12);
+      --red:         #ff6b6b;
+      --red-dim:     rgba(255,107,107,0.1);
+      --orange:      #ffa94d;
+      --orange-dim:  rgba(255,169,77,0.1);
+      --purple:      #b794f6;
+      --purple-dim:  rgba(183,148,246,0.1);
+      --yellow:      #ffd93d;
+      --sidebar-w:   260px;
+      --content-w:   780px;
+      --font:        'Inter', system-ui, sans-serif;
+      --mono:        'JetBrains Mono', ui-monospace, monospace;
+      --radius:      8px;
+      --radius-sm:   5px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 15px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--accent); color: #0a0a0a; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { opacity: 0.8; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+    /* sidebar */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg-2);
+      border-right: 1px solid var(--border);
+      padding: 0 0 40px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: transform 0.22s cubic-bezier(.4,0,.2,1);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 16px 18px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg-2);
+      z-index: 2;
+    }
+
+    .logo-mark {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #5a5a5a 0%, #2e2e2e 100%);
+      border: 1px solid var(--border-2);
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .logo-mark svg { width: 15px; height: 15px; }
+
+    .logo-name { font-weight: 600; font-size: 14.5px; letter-spacing: -0.01em; color: var(--text); }
+    .logo-ver  { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+
+    .sidebar-nav { padding: 14px 8px 0; flex: 1; }
+
+    .nav-group { margin-bottom: 6px; }
+    .nav-group-title {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      padding: 10px 10px 5px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+      position: relative;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: var(--bg-hover); color: var(--text); }
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 4px; bottom: 4px;
+      width: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      letter-spacing: 0.02em;
+    }
+    .nb-get { background: var(--green-dim); color: var(--green); }
+    .nb-new {
+      background: var(--purple-dim);
+      color: var(--purple);
+      font-size: 8.5px;
+      margin-left: 4px;
+    }
+
+    /* main wrapper */
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    /* topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(18,18,18,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 9px 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+    }
+
+    .topbar-label {
+      font-size: 11.5px;
+      color: var(--text-faint);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .base-chip {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px 10px;
+      color: var(--accent);
+      font-weight: 500;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ffmpeg-chip {
+      font-family: var(--mono);
+      font-size: 11px;
+      border-radius: var(--radius-sm);
+      padding: 3px 9px;
+      font-weight: 500;
+      margin-left: auto;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+    }
+    .ffmpeg-chip.on  { color: var(--green);  background: var(--green-dim); }
+    .ffmpeg-chip.off { color: var(--orange); background: var(--orange-dim); }
+
+    .topbar-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+    .topbar-menu-btn:hover { background: var(--bg-3); color: var(--text); }
+
+    /* content */
+    .content {
+      max-width: var(--content-w);
+      width: 100%;
+      padding: 44px 40px 60px;
+    }
+
+    .doc-section { margin-bottom: 60px; scroll-margin-top: 64px; }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-faint);
+      margin: 24px 0 10px;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.75;
+      margin-bottom: 14px;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: var(--text);
+    }
+
+    /* endpoint header */
+    .ep-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .method-get {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid rgba(61,220,151,0.2);
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+    .ep-path {
+      font-family: var(--mono);
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .ep-new-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--purple-dim);
+      color: var(--purple);
+      border: 1px solid rgba(183,148,246,0.25);
+      border-radius: 4px;
+      padding: 2px 7px;
+      letter-spacing: 0.03em;
+    }
+
+    /* info card */
+    .info-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+    .info-card-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+      margin-bottom: 5px;
+    }
+    .info-card-val {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    /* callouts */
+    .callout {
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      border-left: 3px solid;
+      line-height: 1.6;
+    }
+    .callout-info   { background: var(--accent-dim);  border-color: var(--accent);  color: #b9d6ff; }
+    .callout-warn   { background: var(--orange-dim);  border-color: var(--orange);  color: var(--orange); }
+    .callout-tip    { background: var(--green-dim);   border-color: var(--green);   color: var(--green); }
+    .callout code   { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); font-size: 12px; }
+
+    /* params table */
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin-bottom: 20px;
+    }
+    .params-table thead tr { border-bottom: 1px solid var(--border-2); }
+    .params-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+    }
+    .params-table th:first-child { padding-left: 0; }
+    .params-table th:last-child  { padding-right: 0; }
+    .params-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+      font-size: 13.5px;
+    }
+    .params-table td:first-child { padding-left: 0; }
+    .params-table td:last-child  { padding-right: 0; }
+    .params-table td code { font-size: 12px; }
+    .tag-req { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 1px 5px; border-radius: 3px; background: var(--red-dim); color: var(--red); margin-left: 4px; vertical-align: middle; }
+    .tag-opt { display: inline-block; font-size: 9.5px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: var(--bg-3); color: var(--text-faint); margin-left: 4px; vertical-align: middle; }
+
+    /* code blocks */
+    .code-block {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+      background: var(--bg-2);
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 14px;
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-faint);
+      font-weight: 500;
+    }
+    .btn-copy {
+      font-size: 11px;
+      font-family: var(--font);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      color: var(--text-faint);
+      transition: all 0.12s;
+    }
+    .btn-copy:hover { border-color: var(--border-2); color: var(--text-muted); }
+    .btn-copy.copied { color: var(--green); border-color: rgba(61,220,151,0.3); }
+    .code-block pre {
+      margin: 0 !important;
+      padding: 15px !important;
+      border-radius: 0 !important;
+      background: var(--bg-2) !important;
+      overflow-x: auto;
+    }
+    .code-block pre code {
+      font-family: var(--mono) !important;
+      font-size: 12.5px !important;
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+    .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #5a5a5a; }
+
+    /* error grid */
+    .errors-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .error-row {
+      display: flex;
+      gap: 14px;
+      padding: 12px 14px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13.5px;
+      align-items: flex-start;
+    }
+    .error-code { font-family: var(--mono); font-weight: 700; font-size: 13px; min-width: 36px; flex-shrink: 0; margin-top: 1px; }
+    .ec-400 { color: var(--orange); }
+    .ec-403 { color: var(--purple); }
+    .ec-404 { color: var(--text-muted); }
+    .ec-500 { color: var(--red); }
+    .ec-503 { color: var(--red); }
+    .error-desc { color: var(--text-muted); line-height: 1.55; }
+    .error-desc strong { color: var(--text); font-weight: 500; }
+
+    /* playground */
+    .pg-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg-2);
+    }
+    .pg-top {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-3);
+    }
+    .pg-title { font-weight: 600; font-size: 13.5px; color: var(--text); }
+    .pg-sub   { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+
+    .pg-body { padding: 18px; }
+
+    .field-row { margin-bottom: 13px; }
+    .field-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .field-input, .field-select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 11px;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.12s;
+      font-family: var(--mono);
+    }
+    .field-input:focus, .field-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .field-select {
+      font-family: var(--font);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a9a9a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    .subtype-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+    .subtype-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-family: var(--mono);
+      color: var(--text-muted);
+      transition: all 0.12s;
+      user-select: none;
+    }
+    .subtype-chip:hover { border-color: var(--border-2); color: var(--text); }
+    .subtype-chip input[type="radio"] { display: none; }
+    .subtype-chip.selected {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .subtype-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      flex-shrink: 0;
+      display: grid; place-items: center;
+    }
+    .subtype-chip.selected .subtype-dot::before {
+      content: '';
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .toggle-label { font-size: 12.5px; color: var(--text-muted); }
+    .toggle-hint  { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+    .toggle-switch {
+      position: relative;
+      width: 38px; height: 21px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .toggle-switch.on { background: var(--accent); border-color: var(--accent); }
+    .toggle-knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 15px; height: 15px;
+      border-radius: 50%;
+      background: var(--text);
+      transition: left 0.15s;
+    }
+    .toggle-switch.on .toggle-knob { left: 19px; background: #0a0a0a; }
+
+    .url-preview {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--text-faint);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 11px;
+      margin-top: 12px;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+    .url-preview .u-base   { color: var(--text-muted); }
+    .url-preview .u-path   { color: var(--text); }
+    .url-preview .u-params { color: var(--accent); }
+
+    .pg-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: opacity 0.12s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: none;
+      color: var(--text-faint);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .btn-ghost:hover { border-color: var(--border-2); color: var(--text-muted); }
+
+    .pg-result { display: none; border-top: 1px solid var(--border); }
+    .pg-result-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--border);
+    }
+    .pg-status { font-family: var(--mono); font-size: 12px; font-weight: 600; }
+    .pg-status.ok      { color: var(--green); }
+    .pg-status.err     { color: var(--red); }
+    .pg-status.loading { color: var(--text-faint); }
+    .pg-result pre {
+      margin: 0 !important;
+      padding: 15px !important;
+      background: var(--bg-2) !important;
+      max-height: 400px;
+      overflow: auto;
+    }
+    .pg-result pre code {
+      font-family: var(--mono) !important;
+      font-size: 12px !important;
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+    }
+
+    footer {
+      max-width: var(--content-w);
+      padding: 24px 40px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-faint);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 90;
+      backdrop-filter: blur(3px);
+    }
+    .overlay.open { display: block; }
+
+    @media (max-width: 1100px) { :root { --content-w: 700px; } }
+
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 240px; --content-w: 100%; }
+      .content { padding: 36px 28px 48px; }
+      footer { padding: 20px 28px 32px; }
+      .topbar { padding: 9px 20px; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); width: 260px; }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrap { margin-left: 0; }
+      .topbar-menu-btn { display: flex; align-items: center; }
+      .content { padding: 28px 20px 48px; }
+      footer { padding: 18px 20px 28px; }
+      .topbar { padding: 8px 16px; gap: 8px; }
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      .params-table { font-size: 12.5px; }
+      .params-table th, .params-table td { padding: 8px 6px; }
+      .ffmpeg-chip { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .content { padding: 22px 16px 40px; }
+      .topbar { padding: 7px 14px; }
+      .ep-path { font-size: 13px; }
+      .base-chip { font-size: 11px; max-width: 200px; }
+      .errors-grid { gap: 6px; }
+      .pg-body { padding: 14px; }
+      .pg-actions { flex-wrap: wrap; }
+      .btn-primary, .btn-ghost { width: 100%; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      html { font-size: 14px; }
+      .content { padding: 18px 14px 36px; }
+      .topbar { padding: 7px 12px; }
+      .base-chip { max-width: 160px; font-size: 10.5px; }
+      h1 { font-size: 20px; }
+      .code-block pre { padding: 12px !important; }
+      .code-block pre code { font-size: 11.5px !important; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (min-width: 1300px) {
+      .content { max-width: min(var(--content-w), calc(100vw - var(--sidebar-w) - 80px)); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e8e8e8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-name">PytubeDL</div>
+      <div class="logo-ver">API Reference v3.0</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">Getting Started</div>
+      <a class="nav-item" href="#introduction">Introduction</a>
+      <a class="nav-item" href="#authentication">Authentication</a>
+      <a class="nav-item" href="#ffmpeg-merge">Audio Merge (ffmpeg)</a>
+      <a class="nav-item" href="#errors">Errors</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Video</div>
+      <a class="nav-item" href="#ep-info">/api/info <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-streams">/api/streams <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-chapters">/api/chapters <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-key-moments">/api/key-moments <span class="nav-badge nb-get">GET</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Download</div>
+      <a class="nav-item" href="#ep-download">/api/download <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-dl-highest">/highest <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-dl-lowest">/lowest <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-dl-resolution">/resolution <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-dl-audio">/audio <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-dl-dubbed">/dubbed <span class="nav-badge nb-get">GET</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Captions</div>
+      <a class="nav-item" href="#ep-captions">/api/captions <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-captions-get">/captions/get <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-captions-json">/captions/json <span class="nav-badge nb-get">GET</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Discovery</div>
+      <a class="nav-item" href="#ep-search">/api/search <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-search-next">/search/next <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-playlist">/api/playlist <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-channel">/api/channel <span class="nav-badge nb-get">GET</span></a>
+      <a class="nav-item" href="#ep-channel-playlists">/channel/playlists <span class="nav-badge nb-get">GET</span></a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Tools</div>
+      <a class="nav-item" href="#playground">Playground</a>
+    </div>
+  </nav>
+</aside>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- main -->
+<div class="main-wrap">
+  <header class="topbar">
+    <button class="topbar-menu-btn" id="menuToggle" aria-label="Open menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <span class="topbar-label">Base URL</span>
+    <span class="base-chip" id="topbarBase">—</span>
+    <span class="ffmpeg-chip off" id="ffmpegChip">checking ffmpeg…</span>
+  </header>
+
+  <div class="content">
+
+    <!-- introduction -->
+    <section class="doc-section" id="introduction">
+      <div class="eyebrow">Overview</div>
+      <h1>PytubeDL API</h1>
+      <p>A self-hosted REST API for fetching YouTube video metadata, stream listings, chapters, key moments, captions, and direct file downloads — built with Python, Flask, and <a href="https://pypi.org/project/pytubefix/" target="_blank">pytubefix</a>.</p>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-label">Base URL (auto-detected)</div>
+          <div class="info-card-val" id="heroBase">—</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-label">ffmpeg merge engine</div>
+          <div class="info-card-val" id="heroFfmpeg">checking…</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        All endpoints use <strong>GET</strong> with query parameters. Responses are JSON unless the endpoint streams binary file content.
+      </div>
+    </section>
+
+    <!-- authentication -->
+    <section class="doc-section" id="authentication">
+      <h2>Authentication</h2>
+      <p>The API uses Google OAuth to bypass YouTube bot detection. Tokens are cached on disk — login only happens once interactively on the VPS.</p>
+
+      <div class="callout callout-warn">
+        Run the script below once on the VPS before starting the API (or use <code>setup.sh</code>, which does this automatically). Check OAuth status anytime via <code>GET /</code> (health endpoint).
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">bash — one-time login</span>
+          <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code class="language-bash">mkdir -p tokens
+python3 -c "
+from pytubefix import YouTube
+yt = YouTube(
+    'https://youtu.be/dQw4w9WgXcQ',
+    use_oauth=True,
+    allow_oauth_cache=True,
+    token_file='./tokens/oauth.json'
+)
+_ = yt.streams
+print('OAuth OK — token saved.')
+"</code></pre>
+      </div>
+    </section>
+
+    <!-- ffmpeg merge -->
+    <section class="doc-section" id="ffmpeg-merge">
+      <h2>Audio Merge (ffmpeg)</h2>
+      <p>YouTube only serves <strong>progressive</strong> streams (video + audio in one file) up to <code>360p</code> — occasionally <code>720p</code> on older uploads. Anything higher (<code>720p</code>, <code>1080p</code>, <code>1440p</code>, <code>4K</code>) only exists as <strong>adaptive/DASH</strong> streams, where video and audio are separate files with no sound on the video track alone.</p>
+
+      <p>To solve this transparently, every download endpoint that accepts a resolution now does the following automatically:</p>
+
+      <table class="params-table">
+        <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Check if a <strong>progressive</strong> stream exists at the requested resolution. If yes, serve it directly — fastest path, already has audio.</td></tr>
+          <tr><td>2</td><td>If not, find the matching <strong>video-only</strong> (adaptive) stream at that exact resolution.</td></tr>
+          <tr><td>3</td><td>Find the <strong>best available audio-only</strong> stream (highest <code>abr</code>) from <code>/api/info</code>.</td></tr>
+          <tr><td>4</td><td>Download both temporarily, then <strong>mux them with ffmpeg</strong> (<code>-c:v copy</code> — stream copy, no re-encoding, so it's fast and lossless for video). Audio is re-encoded to AAC only when the source is Opus/WebM, since that container can't be copied directly into MP4.</td></tr>
+          <tr><td>5</td><td>Serve the merged <code>.mp4</code> file as the response, then delete the temporary files.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        This means requesting <code>720p</code>, <code>1080p</code>, or higher will <strong>always include audio</strong> — no more silent video files. Use <code>merge_audio=false</code> on any download endpoint to opt out and get the raw video-only stream instead.
+      </div>
+
+      <div class="callout callout-warn">
+        Merging requires <code>ffmpeg</code> installed on the server (<code>apt install ffmpeg</code>). <code>setup.sh</code> installs it automatically. If ffmpeg is missing, high-resolution requests fall back to the best progressive stream available (usually 360p) or return a <code>503</code> explaining how to fix it.
+      </div>
+
+      <h3>Check ffmpeg status</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/"</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json response</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "status": "ok",
+  "version": "3.0.0",
+  "auth": "oauth",
+  "token_cached": true,
+  "ffmpeg_available": true,
+  "message": "API ready."
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- errors -->
+    <section class="doc-section" id="errors">
+      <h2>Errors</h2>
+      <p>Error responses always return JSON with an <code>error</code> key and an optional <code>detail</code> field.</p>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">json</span>
+          <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code class="language-json">{ "error": "Human-readable message", "detail": "Optional extra detail" }</code></pre>
+      </div>
+
+      <div class="errors-grid">
+        <div class="error-row"><span class="error-code ec-400">400</span><span class="error-desc"><strong>Bad Request</strong> — missing required parameter or invalid YouTube URL</span></div>
+        <div class="error-row"><span class="error-code ec-403">403</span><span class="error-desc"><strong>Forbidden</strong> — video is age-restricted, private, region-blocked, or members-only</span></div>
+        <div class="error-row"><span class="error-code ec-404">404</span><span class="error-desc"><strong>Not Found</strong> — video/resolution unavailable, itag not found, or caption code not found</span></div>
+        <div class="error-row"><span class="error-code ec-500">500</span><span class="error-desc"><strong>Server Error</strong> — unexpected exception in pytubefix, ffmpeg, or Flask</span></div>
+        <div class="error-row"><span class="error-code ec-503">503</span><span class="error-desc"><strong>Service Unavailable</strong> — YouTube bot detection, PO token required, or ffmpeg missing for a merge that's needed</span></div>
+      </div>
+    </section>
+
+    <!-- /api/info -->
+    <section class="doc-section" id="ep-info">
+      <div class="eyebrow">Video</div>
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/info</span>
+      </div>
+      <h2>Video Info</h2>
+      <p>Returns full metadata and all available stream groups for a YouTube video, including chapters, key moments, replay heatmap, and a quick-reference list of every downloadable resolution.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>url</code><span class="tag-req">required</span></td>
+            <td>string</td>
+            <td>Full YouTube URL — supports <code>youtu.be</code>, <code>watch?v=</code>, and Shorts</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Example Request</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/api/info?url=https://youtu.be/dQw4w9WgXcQ"</code></pre>
+      </div>
+
+      <h3>Response</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "video_id": "dQw4w9WgXcQ",
+  "title": "Rick Astley - Never Gonna Give You Up",
+  "author": "RickAstleyVEVO",
+  "duration_seconds": 212,
+  "views": 1400000000,
+  "likes": "1.4M",
+  "rating": null,
+  "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+  "publish_date": "2009-10-25",
+  "age_restricted": false,
+  "chapters": [
+    { "title": "Intro", "start_seconds": 0, "start_label": "0:00:00", "thumbnails": [] }
+  ],
+  "key_moments": [
+    { "title": "Famous dance", "start_seconds": 43 }
+  ],
+  "replayed_heatmap": [
+    { "start_seconds": 0.0, "duration": 28.7, "norm_intensity": 0.77 }
+  ],
+  "captions_available": [{ "code": "en", "name": "English" }],
+  "available_resolutions": [
+    { "resolution": "1080p", "is_progressive": false, "requires_merge": true,  "itag": 137 },
+    { "resolution": "720p",  "is_progressive": false, "requires_merge": true,  "itag": 136 },
+    { "resolution": "360p",  "is_progressive": true,  "requires_merge": false, "itag": 18 }
+  ],
+  "ffmpeg_available": true,
+  "streams": {
+    "progressive": [
+      { "itag": 18, "resolution": "360p", "mime_type": "video/mp4",
+        "fps": 24, "is_progressive": true, "requires_merge": false, "filesize_mb": 12.25 }
+    ],
+    "video_only": [
+      { "itag": 137, "resolution": "1080p", "mime_type": "video/mp4",
+        "fps": 24, "is_progressive": false, "requires_merge": true, "filesize_mb": 52.7 }
+    ],
+    "audio_only": [
+      { "itag": 140, "mime_type": "audio/mp4",  "audio_format": "m4a",  "abr": "128kbps" },
+      { "itag": 251, "mime_type": "audio/webm", "audio_format": "opus", "abr": "160kbps" }
+    ],
+    "dubbed": []
+  }
+}</code></pre>
+      </div>
+
+      <div class="callout callout-tip">
+        Use <code>available_resolutions</code> to build a quality picker in your own UI — it already tells you which resolutions need an ffmpeg merge (<code>requires_merge: true</code>) versus which are instantly servable progressive files.
+      </div>
+    </section>
+
+    <!-- /api/streams -->
+    <section class="doc-section" id="ep-streams">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/streams</span>
+      </div>
+      <h2>Stream List</h2>
+      <p>Returns a filtered list of streams. More granular than the <code>streams</code> field in <code>/api/info</code> — useful for building custom filters.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>type</code><span class="tag-opt">optional</span></td><td>string</td><td><code>all</code> · <code>progressive</code> · <code>adaptive</code> · <code>audio</code> · <code>video</code> — default: <code>all</code></td></tr>
+          <tr><td><code>resolution</code><span class="tag-opt">optional</span></td><td>string</td><td>e.g. <code>720p</code></td></tr>
+          <tr><td><code>mime_type</code><span class="tag-opt">optional</span></td><td>string</td><td>e.g. <code>video/mp4</code></td></tr>
+          <tr><td><code>fps</code><span class="tag-opt">optional</span></td><td>integer</td><td>e.g. <code>30</code></td></tr>
+          <tr><td><code>abr</code><span class="tag-opt">optional</span></td><td>string</td><td>Audio bitrate e.g. <code>128kbps</code></td></tr>
+          <tr><td><code>video_codec</code><span class="tag-opt">optional</span></td><td>string</td><td>e.g. <code>avc1.640028</code></td></tr>
+          <tr><td><code>audio_codec</code><span class="tag-opt">optional</span></td><td>string</td><td>e.g. <code>mp4a.40.2</code></td></tr>
+          <tr><td><code>is_dash</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Include/exclude DASH streams</td></tr>
+          <tr><td><code>is_drc</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Include/exclude stable-volume (dynamic range control) streams</td></tr>
+          <tr><td><code>order_by</code><span class="tag-opt">optional</span></td><td>string</td><td>Attribute to sort by, e.g. <code>resolution</code>, <code>abr</code></td></tr>
+          <tr><td><code>desc</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Sort descending — default: <code>true</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — audio only, sorted by bitrate</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/api/streams?url=https://youtu.be/dQw4w9WgXcQ&type=audio&order_by=abr"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/chapters -->
+    <section class="doc-section" id="ep-chapters">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/chapters</span>
+        <span class="ep-new-badge">NEW</span>
+      </div>
+      <h2>Video Chapters</h2>
+      <p>Returns the chapter markers a creator added to the video timeline, including thumbnails for each chapter where available.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/api/chapters?url=https://youtu.be/dQw4w9WgXcQ"</code></pre>
+      </div>
+
+      <h3>Response</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "count": 3,
+  "chapters": [
+    {
+      "title": "Intro",
+      "start_seconds": 0,
+      "start_label": "0:00:00",
+      "thumbnails": [
+        { "width": 168, "height": 94, "url": "https://i.ytimg.com/..." }
+      ]
+    },
+    { "title": "The Build-Up", "start_seconds": 98, "start_label": "0:01:38", "thumbnails": [] }
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/key-moments -->
+    <section class="doc-section" id="ep-key-moments">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/key-moments</span>
+        <span class="ep-new-badge">NEW</span>
+      </div>
+      <h2>Key Moments &amp; Replay Heatmap</h2>
+      <p>Returns YouTube's auto-detected "key moments" (highlights) plus the most-replayed heatmap data — the same data behind the gray peaks on YouTube's seek bar.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Response</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "count": 2,
+  "key_moments": [
+    { "title": "Time Query", "start_seconds": 12 },
+    { "title": "Constructing Space", "start_seconds": 15 }
+  ],
+  "replayed_heatmap": [
+    { "start_seconds": 0.0, "duration": 28.72, "norm_intensity": 0.774 },
+    { "start_seconds": 28.72, "duration": 28.72, "norm_intensity": 0.505 }
+  ]
+}</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        Not every video has key moments or a heatmap — both depend on having enough watch-time data. Empty arrays are normal for smaller or newer videos.
+      </div>
+    </section>
+
+    <!-- /api/download -->
+    <section class="doc-section" id="ep-download">
+      <div class="eyebrow">Download</div>
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/download</span>
+      </div>
+      <h2>Download by Itag</h2>
+      <p>Streams the file directly as a downloadable attachment. Get the <code>itag</code> from <code>/api/info</code>. If the itag points to a video-only (adaptive) stream, audio is merged in automatically via ffmpeg.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>itag</code><span class="tag-req">required</span></td><td>integer</td><td>Stream ID from <code>/api/info</code></td></tr>
+          <tr><td><code>merge_audio</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Auto-merge audio if itag is video-only — default: <code>true</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        Returns binary with <code>Content-Disposition: attachment</code>. Filename derived from video title.
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — 1080p itag, auto-merged with audio</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download?url=https://youtu.be/dQw4w9WgXcQ&itag=137"</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — raw video-only, no merge</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download?url=https://youtu.be/dQw4w9WgXcQ&itag=137&merge_audio=false"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/download/highest -->
+    <section class="doc-section" id="ep-dl-highest">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/download/highest</span>
+      </div>
+      <h2>Download Highest Quality</h2>
+      <p>Downloads the highest resolution available — including 4K/1440p adaptive streams, automatically merged with the best audio via ffmpeg. Pass <code>progressive=true</code> to restrict to progressive-only (no merge, capped around 360–720p).</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>progressive</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Restrict to progressive streams only — default: <code>false</code></td></tr>
+          <tr><td><code>mime_type</code><span class="tag-opt">optional</span></td><td>string</td><td>e.g. <code>video/mp4</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-tip">
+        Default behavior now reaches true maximum quality (e.g. 4K) by merging video-only + audio. This is a change from progressive-only behavior in earlier versions.
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download/highest?url=https://youtu.be/dQw4w9WgXcQ"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/download/lowest -->
+    <section class="doc-section" id="ep-dl-lowest">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/download/lowest</span>
+      </div>
+      <h2>Download Lowest Quality</h2>
+      <p>Downloads the lowest resolution stream — useful for bandwidth-constrained environments. Always progressive (already has audio), so no merge is needed.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>progressive</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Default: <code>true</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- /api/download/resolution -->
+    <section class="doc-section" id="ep-dl-resolution">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/download/resolution</span>
+      </div>
+      <h2>Download by Resolution</h2>
+      <p>Downloads at the exact resolution requested — <code>144p</code> through <code>4320p</code> (8K, when the source provides it). Resolutions above what's available as progressive are automatically merged with audio via ffmpeg. See <a href="#ffmpeg-merge">Audio Merge</a> for how this works.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>res</code><span class="tag-req">required</span></td><td>string</td><td><code>144p</code> · <code>240p</code> · <code>360p</code> · <code>480p</code> · <code>720p</code> · <code>1080p</code> · <code>1440p</code> · <code>2160p</code> (4K)</td></tr>
+          <tr><td><code>merge_audio</code><span class="tag-opt">optional</span></td><td>boolean</td><td>Auto-merge if needed — default: <code>true</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn">
+        If you request a resolution with no matching stream at all (progressive or adaptive), you'll get a <code>404</code> with an <code>available_resolutions</code> list so you know what to try instead.
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — 720p, auto-merged with audio</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download/resolution?url=https://youtu.be/dQw4w9WgXcQ&res=720p"</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — 1080p video-only, no audio merge</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download/resolution?url=https://youtu.be/dQw4w9WgXcQ&res=1080p&merge_audio=false"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/download/audio -->
+    <section class="doc-section" id="ep-dl-audio">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/download/audio</span>
+      </div>
+      <h2>Download Audio Only</h2>
+      <p>Downloads the best audio-only stream and serves it with the correct audio MIME type and file extension. YouTube internally labels audio as <code>audio/mp4</code> or <code>audio/webm</code>, but this endpoint remaps those to proper music formats.</p>
+
+      <h3>Format Mapping</h3>
+      <table class="params-table">
+        <thead><tr><th>format=</th><th>Container</th><th>Codec</th><th>MIME type</th><th>Extension</th></tr></thead>
+        <tbody>
+          <tr><td><code>m4a</code></td><td>MP4</td><td>AAC (mp4a.40.2)</td><td><code>audio/mp4</code></td><td>.m4a</td></tr>
+          <tr><td><code>opus</code></td><td>WebM</td><td>Opus</td><td><code>audio/webm</code></td><td>.webm</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>format</code><span class="tag-opt">optional</span></td><td>string</td><td><code>m4a</code> (default) · <code>opus</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        M4A (AAC) is natively playable on all Apple devices and most music players. Opus delivers slightly better quality at the same bitrate but requires a compatible player.
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — download M4A</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download/audio?url=https://youtu.be/dQw4w9WgXcQ&format=m4a"</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — download Opus</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download/audio?url=https://youtu.be/dQw4w9WgXcQ&format=opus"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/download/dubbed -->
+    <section class="doc-section" id="ep-dl-dubbed">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/download/dubbed</span>
+        <span class="ep-new-badge">NEW</span>
+      </div>
+      <h2>Download Dubbed Audio Track</h2>
+      <p>Some YouTube videos ship with auto-dubbed or creator-provided alternate-language audio tracks. This downloads one of those tracks by name (check <code>streams.dubbed</code> in <code>/api/info</code> for available names).</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>name</code><span class="tag-req">required</span></td><td>string</td><td>Track name/language, e.g. <code>Spanish (Latin America)</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/download/dubbed?url=https://youtu.be/dQw4w9WgXcQ&name=Spanish"</code></pre>
+      </div>
+
+      <div class="callout callout-warn">
+        Not all videos have dubbed tracks. If none exist, <code>streams.dubbed</code> in <code>/api/info</code> will be an empty array and this endpoint returns <code>404</code>.
+      </div>
+    </section>
+
+    <!-- /api/captions -->
+    <section class="doc-section" id="ep-captions">
+      <div class="eyebrow">Captions</div>
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/captions</span>
+      </div>
+      <h2>List Captions</h2>
+      <p>Returns all available caption tracks for a video, including auto-generated ones (prefixed <code>a.</code>).</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Response</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "count": 2,
+  "captions": [
+    { "code": "en", "name": "English" },
+    { "code": "a.en", "name": "English (auto-generated)" }
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/captions/get -->
+    <section class="doc-section" id="ep-captions-get">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/captions/get</span>
+      </div>
+      <h2>Download Caption File</h2>
+      <p>Downloads the caption file for a specific language as SRT, XML, or plain text.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>lang_code</code><span class="tag-opt">optional</span></td><td>string</td><td>BCP-47 language code — default: <code>en</code></td></tr>
+          <tr><td><code>format</code><span class="tag-opt">optional</span></td><td>string</td><td><code>srt</code> (default) · <code>xml</code> · <code>txt</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl — Indonesian SRT</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl -OJ "{BASE}/api/captions/get?url=https://youtu.be/dQw4w9WgXcQ&lang_code=id&format=srt"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/captions/json -->
+    <section class="doc-section" id="ep-captions-json">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/captions/json</span>
+        <span class="ep-new-badge">NEW</span>
+      </div>
+      <h2>Captions as JSON</h2>
+      <p>Returns the parsed timed-text caption segments as JSON instead of a downloadable file — useful for building custom subtitle UIs or searching transcript text.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube URL</td></tr>
+          <tr><td><code>lang_code</code><span class="tag-opt">optional</span></td><td>string</td><td>BCP-47 language code — default: <code>en</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/api/captions/json?url=https://youtu.be/dQw4w9WgXcQ&lang_code=en"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/search -->
+    <section class="doc-section" id="ep-search">
+      <div class="eyebrow">Discovery</div>
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/search</span>
+      </div>
+      <h2>Search</h2>
+      <p>Searches YouTube and returns results with metadata and autocomplete suggestions. Can return videos, shorts, playlists, or a mixed feed.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>q</code><span class="tag-req">required</span></td><td>string</td><td>Search query</td></tr>
+          <tr><td><code>type</code><span class="tag-opt">optional</span></td><td>string</td><td><code>videos</code> (default) · <code>shorts</code> · <code>playlists</code> · <code>all</code></td></tr>
+          <tr><td><code>limit</code><span class="tag-opt">optional</span></td><td>integer</td><td>Max results 1–20 — default: <code>10</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Response</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "query": "lofi hip hop",
+  "type": "videos",
+  "suggestions": ["lofi hip hop radio", "lofi hip hop beats"],
+  "count": 10,
+  "results": [
+    {
+      "result_type": "video",
+      "video_id": "jfKfPfyJRdk",
+      "title": "lofi hip hop radio — beats to relax/study to",
+      "author": "Lofi Girl",
+      "duration_seconds": null,
+      "views": 95000000,
+      "thumbnail_url": "https://i.ytimg.com/...",
+      "watch_url": "https://www.youtube.com/watch?v=jfKfPfyJRdk"
+    }
+  ]
+}</code></pre>
+      </div>
+
+      <div class="callout callout-tip">
+        Fixed in v3.0: search previously returned empty results due to a faulty fallback. It now reads results directly from pytubefix's <code>Search.videos</code> property.
+      </div>
+    </section>
+
+    <!-- /api/search/next -->
+    <section class="doc-section" id="ep-search-next">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/search/next</span>
+        <span class="ep-new-badge">NEW</span>
+      </div>
+      <h2>Search — Next Page</h2>
+      <p>Fetches the continuation/next page of search results for a query.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>q</code><span class="tag-req">required</span></td><td>string</td><td>Search query</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/api/search/next?q=lofi+hip+hop"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/playlist -->
+    <section class="doc-section" id="ep-playlist">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/playlist</span>
+      </div>
+      <h2>Playlist Info</h2>
+      <p>Returns playlist metadata and its video list (up to 200 items).</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube playlist URL (must contain <code>list=</code>)</td></tr>
+          <tr><td><code>limit</code><span class="tag-opt">optional</span></td><td>integer</td><td>Max videos, up to 200 — default: <code>50</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Response</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">json</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-json">{
+  "playlist_id": "PLxxxx",
+  "title": "Chill Mix",
+  "owner": "Lofi Girl",
+  "owner_id": "UCxxxx",
+  "length": 48,
+  "views": 1200000,
+  "last_updated": "2026-05-01",
+  "returned": 50,
+  "videos": [
+    { "video_id": "jfKfPfyJRdk", "title": "lofi hip hop radio", "author": "Lofi Girl", "watch_url": "..." }
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/channel -->
+    <section class="doc-section" id="ep-channel">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/channel</span>
+      </div>
+      <h2>Channel Info</h2>
+      <p>Returns channel metadata and a list of its videos, shorts, live streams, or releases (albums/EPs treated as playlists).</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube channel URL</td></tr>
+          <tr><td><code>content</code><span class="tag-opt">optional</span></td><td>string</td><td><code>videos</code> (default) · <code>shorts</code> · <code>live</code> · <code>releases</code></td></tr>
+          <tr><td><code>limit</code><span class="tag-opt">optional</span></td><td>integer</td><td>Max items, up to 100 — default: <code>20</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">curl</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre><code class="language-bash">curl "{BASE}/api/channel?url=https://www.youtube.com/@LofiGirl&content=live&limit=5"</code></pre>
+      </div>
+    </section>
+
+    <!-- /api/channel/playlists -->
+    <section class="doc-section" id="ep-channel-playlists">
+      <div class="ep-header">
+        <span class="method-get">GET</span>
+        <span class="ep-path">/api/channel/playlists</span>
+      </div>
+      <h2>Channel Playlists</h2>
+      <p>Returns all public playlists belonging to a channel.</p>
+
+      <h3>Query Parameters</h3>
+      <table class="params-table">
+        <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>url</code><span class="tag-req">required</span></td><td>string</td><td>YouTube channel URL</td></tr>
+          <tr><td><code>limit</code><span class="tag-opt">optional</span></td><td>integer</td><td>Max playlists, up to 50 — default: <code>20</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- playground -->
+    <section class="doc-section" id="playground">
+      <div class="eyebrow">Tools</div>
+      <h2>Playground</h2>
+      <p>Test endpoints live. Base URL is auto-detected from this page — no manual editing needed.</p>
+
+      <div class="pg-card">
+        <div class="pg-top">
+          <div class="pg-title">API Tester</div>
+          <div class="pg-sub">Results load inline. Download endpoints open in a new tab.</div>
+        </div>
+        <div class="pg-body">
+          <div class="field-row">
+            <label class="field-label" for="pgEndpoint">Endpoint</label>
+            <select class="field-select" id="pgEndpoint" onchange="updatePg()">
+              <option value="/api/info">GET /api/info</option>
+              <option value="/api/streams">GET /api/streams</option>
+              <option value="/api/chapters">GET /api/chapters</option>
+              <option value="/api/key-moments">GET /api/key-moments</option>
+              <option value="/api/download">GET /api/download</option>
+              <option value="/api/download/highest">GET /api/download/highest</option>
+              <option value="/api/download/lowest">GET /api/download/lowest</option>
+              <option value="/api/download/resolution">GET /api/download/resolution</option>
+              <option value="/api/download/audio">GET /api/download/audio</option>
+              <option value="/api/captions">GET /api/captions</option>
+              <option value="/api/captions/json">GET /api/captions/json</option>
+              <option value="/api/search">GET /api/search</option>
+              <option value="/api/playlist">GET /api/playlist</option>
+              <option value="/api/channel">GET /api/channel</option>
+            </select>
+          </div>
+
+          <div id="pgFields"></div>
+
+          <div class="url-preview" id="pgPreview">—</div>
+
+          <div class="pg-actions">
+            <button class="btn-primary" id="pgBtn" onclick="runPg()">Send Request</button>
+            <button class="btn-ghost" onclick="clearPg()">Clear</button>
+          </div>
+        </div>
+
+        <div class="pg-result" id="pgResult">
+          <div class="pg-result-bar">
+            <span class="pg-status" id="pgStatus">—</span>
+            <button class="btn-copy" onclick="copyPg(this)">Copy</button>
+          </div>
+          <pre><code id="pgOutput" class="language-json"></code></pre>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- .content -->
+
+  <footer>
+    <span>PytubeDL API &mdash; <span id="footerBase">—</span></span>
+    <span>&copy; 2026 @galihrhgnwn</span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+<script>
+'use strict';
+
+// auto base url
+const BASE = window.location.origin;
+['topbarBase', 'heroBase', 'footerBase'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.textContent = BASE;
+});
+
+document.querySelectorAll('.code-block code').forEach(el => {
+  if (el.textContent.includes('{BASE}')) {
+    el.textContent = el.textContent.replaceAll('{BASE}', BASE);
+  }
+});
+if (window.Prism) Prism.highlightAll();
+
+// ffmpeg status check
+async function checkFfmpeg() {
+  const chip = document.getElementById('ffmpegChip');
+  const heroChip = document.getElementById('heroFfmpeg');
+  try {
+    const res = await fetch(`${BASE}/`);
+    const data = await res.json();
+    const ok = !!data.ffmpeg_available;
+    chip.textContent = ok ? 'ffmpeg ready' : 'ffmpeg missing';
+    chip.className = `ffmpeg-chip ${ok ? 'on' : 'off'}`;
+    if (heroChip) {
+      heroChip.textContent = ok ? 'Available — merges enabled' : 'Not installed — merges disabled';
+      heroChip.style.color = ok ? 'var(--green)' : 'var(--orange)';
+    }
+  } catch (e) {
+    chip.textContent = 'status unknown';
+    chip.className = 'ffmpeg-chip off';
+    if (heroChip) heroChip.textContent = 'Could not reach API';
+  }
+}
+checkFfmpeg();
+
+// active nav tracking
+const navItems = document.querySelectorAll('.nav-item[href]');
+const sections = document.querySelectorAll('.doc-section[id]');
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      navItems.forEach(n => n.classList.toggle('active', n.getAttribute('href') === `#${id}`));
+    }
+  });
+}, { rootMargin: '-20% 0px -65% 0px' });
+
+sections.forEach(s => io.observe(s));
+
+// mobile sidebar
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+
+function openSidebar()  { sidebar.classList.add('open');  overlay.classList.add('open'); }
+function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+document.getElementById('menuToggle').onclick = () =>
+  sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+
+overlay.onclick = closeSidebar;
+navItems.forEach(n => n.addEventListener('click', () => {
+  if (window.innerWidth <= 768) closeSidebar();
+}));
+
+// copy code blocks
+window.copyCode = function(btn) {
+  const code = btn.closest('.code-block')?.querySelector('pre code');
+  if (!code) return;
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+  });
+};
+
+// playground
+const BINARY = ['/api/download','/api/download/highest','/api/download/lowest',
+                '/api/download/resolution','/api/download/audio'];
+
+const EP_FIELDS = {
+  '/api/info':                [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true }],
+  '/api/streams':             [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true },
+                               { id:'type',  label:'Type',                         ph:'all / progressive / adaptive / audio / video' }],
+  '/api/chapters':            [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true }],
+  '/api/key-moments':         [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true }],
+  '/api/download':            [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true },
+                               { id:'itag',  label:'Itag (from /api/info)',        ph:'137',                               req:true },
+                               { id:'merge_audio', label:'Merge audio if needed',  type:'toggle', def:true }],
+  '/api/download/highest':    [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true },
+                               { id:'progressive', label:'Progressive only (caps ~360-720p)', type:'toggle', def:false }],
+  '/api/download/lowest':     [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true }],
+  '/api/download/resolution': [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true },
+                               { id:'res',   label:'Resolution',                   ph:'720p',                              req:true, type:'res' },
+                               { id:'merge_audio', label:'Merge audio if needed',  type:'toggle', def:true }],
+  '/api/download/audio':      [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true },
+                               { id:'format', label:'Audio Format',                ph:'m4a',                               type:'subtype' }],
+  '/api/captions':            [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true }],
+  '/api/captions/json':       [{ id:'url',   label:'YouTube URL',                  ph:'https://youtu.be/dQw4w9WgXcQ',      req:true },
+                               { id:'lang_code', label:'Language code',            ph:'en' }],
+  '/api/search':              [{ id:'q',     label:'Search query',                 ph:'lofi hip hop',                      req:true },
+                               { id:'type',  label:'Type',                         ph:'videos / shorts / playlists / all' },
+                               { id:'limit', label:'Limit (1–20)',                 ph:'10' }],
+  '/api/playlist':            [{ id:'url',   label:'Playlist URL (contains list=)',ph:'https://youtube.com/playlist?list=…',req:true },
+                               { id:'limit', label:'Limit (max 200)',              ph:'50' }],
+  '/api/channel':             [{ id:'url',   label:'Channel URL',                  ph:'https://www.youtube.com/@LofiGirl', req:true },
+                               { id:'content',label:'Content',                     ph:'videos / shorts / live / releases' },
+                               { id:'limit', label:'Limit (max 100)',              ph:'20' }],
+};
+
+const SUBTYPES = ['m4a', 'opus'];
+const RESOLUTIONS = ['144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p'];
+
+function subtypePicker(selectedVal) {
+  return `<div class="subtype-picker" id="subtype-picker">` +
+    SUBTYPES.map(s => `
+      <label class="subtype-chip${s === selectedVal ? ' selected' : ''}" onclick="selectChip('subtype-picker', this)">
+        <input type="radio" name="pg-subtype" value="${s}" ${s === selectedVal ? 'checked' : ''}>
+        <span class="subtype-dot"></span>${s}
+      </label>`).join('') + `</div>`;
+}
+
+function resPicker(selectedVal) {
+  return `<div class="subtype-picker" id="res-picker">` +
+    RESOLUTIONS.map(r => `
+      <label class="subtype-chip${r === selectedVal ? ' selected' : ''}" onclick="selectChip('res-picker', this)">
+        <input type="radio" name="pg-res" value="${r}" ${r === selectedVal ? 'checked' : ''}>
+        <span class="subtype-dot"></span>${r}
+      </label>`).join('') + `</div>`;
+}
+
+window.selectChip = function(groupId, el) {
+  document.querySelectorAll(`#${groupId} .subtype-chip`).forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  updatePreview();
+};
+
+function togglePicker(fieldId, label, defaultOn) {
+  return `<div class="toggle-row">
+    <span class="toggle-label">${label}</span>
+    <div class="toggle-switch${defaultOn ? ' on' : ''}" id="toggle-${fieldId}" onclick="toggleSwitch('${fieldId}')"><div class="toggle-knob"></div></div>
+  </div>`;
+}
+
+window.toggleSwitch = function(fieldId) {
+  const el = document.getElementById(`toggle-${fieldId}`);
+  el.classList.toggle('on');
+  updatePreview();
+};
+
+function getFieldValue(f) {
+  if (f.type === 'subtype') {
+    const checked = document.querySelector('#subtype-picker input:checked');
+    return checked ? checked.value : 'm4a';
+  }
+  if (f.type === 'res') {
+    const checked = document.querySelector('#res-picker input:checked');
+    return checked ? checked.value : '';
+  }
+  if (f.type === 'toggle') {
+    const el = document.getElementById(`toggle-${f.id}`);
+    return el ? (el.classList.contains('on') ? 'true' : 'false') : String(f.def);
+  }
+  const el = document.getElementById(`pgf_${f.id}`);
+  return el ? el.value.trim() : '';
+}
+
+function updatePg() {
+  const ep = document.getElementById('pgEndpoint').value;
+  const fields = EP_FIELDS[ep] || [];
+  const container = document.getElementById('pgFields');
+
+  container.innerHTML = fields.map(f => {
+    let input;
+    if (f.type === 'subtype') {
+      input = subtypePicker('m4a');
+    } else if (f.type === 'res') {
+      input = resPicker('720p');
+    } else if (f.type === 'toggle') {
+      return `<div class="field-row">${togglePicker(f.id, f.label, f.def)}</div>`;
+    } else {
+      const def = f.id === 'url' ? 'https://youtu.be/dQw4w9WgXcQ' : '';
+      input = `<input type="text" id="pgf_${f.id}" class="field-input"
+        placeholder="${f.ph}" value="${def}" oninput="updatePreview()">`;
+    }
+    return `<div class="field-row">
+      <label class="field-label">${f.label}${f.req ? ' <span class="tag-req">required</span>' : ''}</label>
+      ${input}
+    </div>`;
+  }).join('');
+
+  document.getElementById('pgResult').style.display = 'none';
+  updatePreview();
+}
+
+function buildParams() {
+  const ep = document.getElementById('pgEndpoint').value;
+  const fields = EP_FIELDS[ep] || [];
+  const p = new URLSearchParams();
+  fields.forEach(f => {
+    const v = getFieldValue(f);
+    if (f.type === 'toggle') {
+      // only include if different from the implicit server default... but explicit is clearer for the playground
+      p.set(f.id, v);
+    } else if (v) {
+      p.set(f.id, v);
+    }
+  });
+  return p;
+}
+
+function updatePreview() {
+  const ep = document.getElementById('pgEndpoint').value;
+  const qs = buildParams().toString();
+  const preview = document.getElementById('pgPreview');
+  preview.innerHTML = `<span class="u-base">${BASE}</span><span class="u-path">${ep}</span><span class="u-params">${qs ? '?' + qs : ''}</span>`;
+}
+
+window.runPg = async function() {
+  const ep = document.getElementById('pgEndpoint').value;
+  const qs = buildParams().toString();
+  const url = `${BASE}${ep}${qs ? '?' + qs : ''}`;
+  const resultEl = document.getElementById('pgResult');
+  const statusEl = document.getElementById('pgStatus');
+  const outputEl = document.getElementById('pgOutput');
+  const btn = document.getElementById('pgBtn');
+
+  if (BINARY.includes(ep)) {
+    window.open(url, '_blank');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Sending…';
+  resultEl.style.display = 'block';
+  statusEl.textContent = 'Waiting…'; statusEl.className = 'pg-status loading';
+  outputEl.textContent = '';
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    statusEl.className = `pg-status ${res.ok ? 'ok' : 'err'}`;
+    statusEl.textContent = `HTTP ${res.status} ${res.ok ? 'OK' : 'Error'}`;
+    outputEl.textContent = JSON.stringify(data, null, 2);
+    if (window.Prism) Prism.highlightElement(outputEl);
+  } catch (err) {
+    statusEl.className = 'pg-status err';
+    statusEl.textContent = 'Network Error / CORS';
+    outputEl.textContent = String(err);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send Request';
+  }
+};
+
+window.clearPg = function() {
+  document.getElementById('pgResult').style.display = 'none';
+  document.querySelectorAll('#pgFields .field-input').forEach(el => {
+    if (!el.id.endsWith('_url')) el.value = '';
+  });
+  updatePreview();
+};
+
+window.copyPg = function(btn) {
+  const text = document.getElementById('pgOutput').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+  });
+};
+
+// init
+updatePg();
+</script>
+</body>
+</html>
