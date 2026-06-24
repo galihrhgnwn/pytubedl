@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from pytubefix import YouTube, Playlist, Channel, Search
+from vpn_gate import vpn_manager
 from pytubefix.cli import on_progress
 from pytubefix.exceptions import (
     BotDetection, PoTokenRequired, VideoUnavailable,
@@ -52,15 +53,41 @@ def make_yt(url: str, **kwargs) -> YouTube:
 
     os.makedirs(os.path.dirname(_TOKEN_FILE) or ".", exist_ok=True)
 
-    yt = YouTube(
-        url,
-        use_oauth=True,
-        allow_oauth_cache=True,
-        token_file=_TOKEN_FILE,
-        **base,
-    )
-    _ = yt.vid_info  # trigger auth + http call
-    return yt
+    bypass_vpn = _arg_bool("bypass_region", False)
+    
+    def create_yt():
+        return YouTube(
+            url,
+            use_oauth=True,
+            allow_oauth_cache=True,
+            token_file=_TOKEN_FILE,
+            **base,
+        )
+
+    if bypass_vpn:
+        if not vpn_manager.is_connected:
+            vpn_manager.connect()
+            vpn_manager.start_auto_switch()
+        
+        try:
+            yt = create_yt()
+            _ = yt.vid_info
+            return yt
+        except VideoRegionBlocked:
+            # Try switching VPN once if it was already connected but still blocked
+            vpn_manager.connect()
+            yt = create_yt()
+            _ = yt.vid_info
+            return yt
+    else:
+        # If not bypassing, ensure VPN is disconnected to save resources
+        if vpn_manager.is_connected:
+            vpn_manager.stop_auto_switch()
+            vpn_manager.disconnect()
+            
+        yt = create_yt()
+        _ = yt.vid_info
+        return yt
 
 
 # helpers

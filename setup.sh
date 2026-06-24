@@ -21,6 +21,10 @@ fi
 
 # install dependencies
 echo "[2/4] installing dependencies..."
+if ! command -v openvpn &> /dev/null; then
+    echo "  installing openvpn for region bypass..."
+    sudo apt-get update -qq && sudo apt-get install -y openvpn -qq
+fi
 pip install -r requirements.txt --break-system-packages -q
 
 # create tokens folder
